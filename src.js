@@ -47,17 +47,21 @@ submit = function () {
     if (!i) limparResultado();
     let quantasVezesPreenchimentoArr = pesquisarNoTextoQuantasVezes(textoPreenchimento, tag);
     let textoResultadoPreenchimento = textoResultado(quantasVezesPreenchimentoArr, tag);
-    escreverResultado(textoResultadoPreenchimento, "preenchimento");
+    if (textoResultadoPreenchimento) escreverResultado(textoResultadoPreenchimento, "preenchimento");
 
     let quantasVezesVisualizacaoArr = pesquisarNoTextoQuantasVezes(textoVisualizacao, tag);
     let textoResultadoVisualizacao = textoResultado(quantasVezesVisualizacaoArr, tag);
-    escreverResultado(textoResultadoVisualizacao, "visualizacao");
+    if (textoResultadoVisualizacao) escreverResultado(textoResultadoVisualizacao, "visualizacao");
   });
 
 };
 
-//-- funções
+copiar = () => {
+  copiarTextoPorClass();
+};
 
+
+//-- funções
 pesquisarNoTextoQuantasVezes = (texto, tag) => {
   let qtsTagAbertura = texto.split(`<${tag}`).length - 1;
   let qtsTagFechamento = texto.split(`</${tag}`).length - 1;
@@ -68,9 +72,9 @@ pesquisarNoTextoQuantasVezes = (texto, tag) => {
 textoResultado = (qtd, tag) => {
 
   if (qtd[0] > qtd[1])
-    return `Faltando ${qtd[0] - qtd[1]} tags <strong>${tag}</strong> de fechamento `;
+    return `- Faltando ${qtd[0] - qtd[1]} tags ${tag} de fechamento<br>`;
   if (qtd[0] < qtd[1])
-    return `Existem ${qtd[1] - qtd[0]} tags <strong>${tag}</strong> de fechamento a mais `;
+    return `- Existem ${qtd[1] - qtd[0]} tags ${tag} de fechamento a mais<br>`;
 
   return "";
 };
@@ -78,14 +82,10 @@ textoResultado = (qtd, tag) => {
 escreverResultado = (texto, tipo) => {
   if (tipo == "preenchimento") {
     let resultado = document.querySelector("#resultadoPreenchimento");
-    let p = document.createElement("p");
-    p.innerHTML = texto;
-    resultado.insertBefore(p, resultado.firstChild);
+    resultado.innerHTML += texto;
   } else {
     let resultado = document.querySelector("#resultadoVisualizacao");
-    let p = document.createElement("p");
-    p.innerHTML = texto;
-    resultado.insertBefore(p, resultado.firstChild);
+    resultado.innerHTML += texto;
   }
 };
 
@@ -95,6 +95,18 @@ limparResultado = () => {
   let visualizacao = document.querySelector("#resultadoVisualizacao");
   visualizacao.innerText = "";
 };
+
+copiarTextoPorClass = () => {
+  let texto = "Preenchimento: \n";
+  texto += document.querySelector('#resultadoPreenchimento').innerText + "\n";
+  texto += "Visualização: \n";
+  texto += document.querySelector('#resultadoVisualizacao').innerText;
+  console.log(texto);
+  navigator.clipboard.writeText(texto);
+};
+
+
+
 
 
 /** exemplo de erro

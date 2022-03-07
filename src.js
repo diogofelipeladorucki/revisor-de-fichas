@@ -36,6 +36,8 @@ const tagsParaTeste = [
 ];
 
 submit = function () {
+  document.querySelector(".row-resultados").style.visibility = "visible";
+
   const textoPreenchimento = document
     .querySelector("#preenchimento")
     .value.toLocaleLowerCase();
@@ -53,6 +55,12 @@ submit = function () {
     let textoResultadoVisualizacao = textoResultado(quantasVezesVisualizacaoArr, tag);
     if (textoResultadoVisualizacao) escreverResultado(textoResultadoVisualizacao, "visualizacao");
   });
+
+
+  let p = document.querySelector("#resultadoPreenchimento");
+  let v = document.querySelector("#resultadoVisualizacao");
+  if(!p.innerHTML.length) p.innerHTML = "<span class='text-success'>- Nenhuma anormalidade com o código</span>"
+  if(!v.innerHTML.length) v.innerHTML = "<span class='text-success'>- Nenhuma anormalidade com o código</span>"
 
 };
 
@@ -101,7 +109,6 @@ copiarTextoPorClass = () => {
   texto += document.querySelector('#resultadoPreenchimento').innerText + "\n";
   texto += "Visualização: \n";
   texto += document.querySelector('#resultadoVisualizacao').innerText;
-  console.log(texto);
   navigator.clipboard.writeText(texto);
 };
 

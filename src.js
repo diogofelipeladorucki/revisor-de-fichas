@@ -45,29 +45,48 @@ submit = function () {
     .querySelector("#visualizacao")
     .value.toLocaleLowerCase();
 
+  limparResultado();
+
+  classesEIds(textoPreenchimento, "preenchimento");
+  classesEIds(textoVisualizacao, "visualizacao");
+
   tagsParaTeste.forEach((tag, i) => {
-    if (!i) limparResultado();
-    let quantasVezesPreenchimentoArr = pesquisarNoTextoQuantasVezes(textoPreenchimento, tag);
-    let textoResultadoPreenchimento = textoResultado(quantasVezesPreenchimentoArr, tag);
-    if (textoResultadoPreenchimento) escreverResultado(textoResultadoPreenchimento, "preenchimento");
+    let quantasVezesPreenchimentoArr = pesquisarNoTextoQuantasVezes(
+      textoPreenchimento,
+      tag
+    );
+    let textoResultadoPreenchimento = textoResultado(
+      quantasVezesPreenchimentoArr,
+      tag
+    );
+    if (textoResultadoPreenchimento)
+      escreverResultado(textoResultadoPreenchimento, "preenchimento");
 
-    let quantasVezesVisualizacaoArr = pesquisarNoTextoQuantasVezes(textoVisualizacao, tag);
-    let textoResultadoVisualizacao = textoResultado(quantasVezesVisualizacaoArr, tag);
-    if (textoResultadoVisualizacao) escreverResultado(textoResultadoVisualizacao, "visualizacao");
+    let quantasVezesVisualizacaoArr = pesquisarNoTextoQuantasVezes(
+      textoVisualizacao,
+      tag
+    );
+    let textoResultadoVisualizacao = textoResultado(
+      quantasVezesVisualizacaoArr,
+      tag
+    );
+    if (textoResultadoVisualizacao)
+      escreverResultado(textoResultadoVisualizacao, "visualizacao");
   });
-
 
   let p = document.querySelector("#resultadoPreenchimento");
   let v = document.querySelector("#resultadoVisualizacao");
-  if(!p.innerHTML.length) p.innerHTML = "<span class='text-success'>- Nenhuma anormalidade com o código</span>"
-  if(!v.innerHTML.length) v.innerHTML = "<span class='text-success'>- Nenhuma anormalidade com o código</span>"
-
+  if (!p.innerHTML.length)
+    p.innerHTML =
+      "<span class='text-success'>- Nenhuma anormalidade com o código</span>";
+  if (!v.innerHTML.length)
+    v.innerHTML =
+      "<span class='text-success'>- Nenhuma anormalidade com o código</span>";
 };
 
 copiar = () => {
   copiarTextoPorClass();
 };
-
 
 //-- funções
 pesquisarNoTextoQuantasVezes = (texto, tag) => {
@@ -78,7 +97,6 @@ pesquisarNoTextoQuantasVezes = (texto, tag) => {
 };
 
 textoResultado = (qtd, tag) => {
-
   if (qtd[0] > qtd[1])
     return `- Faltando ${qtd[0] - qtd[1]} tags ${tag} de fechamento<br>`;
   if (qtd[0] < qtd[1])
@@ -106,15 +124,69 @@ limparResultado = () => {
 
 copiarTextoPorClass = () => {
   let texto = "Preenchimento: \n";
-  texto += document.querySelector('#resultadoPreenchimento').innerText + "\n";
+  texto += document.querySelector("#resultadoPreenchimento").innerText + "\n";
   texto += "Visualização: \n";
-  texto += document.querySelector('#resultadoVisualizacao').innerText;
+  texto += document.querySelector("#resultadoVisualizacao").innerText;
   navigator.clipboard.writeText(texto);
 };
 
+classesEIds = (texto, tipo) => {
+  //classes
+  let regexClasse1 = /\.(.*?[a-zA-Z\-0-9])\ {/g;
+  let regexClasse2 = /\.(.*?[a-zA-Z\-0-9])\{/g;
+  let resultadoRegexClasse1 = texto.match(regexClasse1) || [];
+  let resultadoRegexClasse2 = texto.match(regexClasse2) || [];
 
+  let resultadoClasse = resultadoRegexClasse1.concat(resultadoRegexClasse2);
+  if (resultadoClasse.length)
+    resultadoClasse = resultadoClasse.map((item) => {
+      let itemSemPonto = item.replace(".", "");
+      let itemSemEspaco = itemSemPonto.replace(" ", "");
+      let itemSemChave = itemSemEspaco.replace("{", "");
+      return itemSemChave;
+    });
 
+  resultadoClasse.forEach((e) => {
+    let quantasClasses = texto.split(e).length - 2;
+    if (!quantasClasses) {
+      if (tipo == "preenchimento") {
+        let resultado = document.querySelector("#resultadoPreenchimento");
+        resultado.innerHTML += ` - Classe ${e} não está em uso\n\n`;
+      } else {
+        let resultado = document.querySelector("#resultadoVisualizacao");
+        resultado.innerHTML += ` - Classe ${e} não está em uso<br>`;
+      }
+    }
+  });
 
+  // ids
+  let regexId1 = /\#(.*?[a-zA-Z\-0-9])\ {/g;
+  let regexId2 = /\#(.*?[a-zA-Z\-0-9])\{/g;
+  let resultadoRegexId1 = texto.match(regexId1) || [];
+  let resultadoRegexId2 = texto.match(regexId2) || [];
+
+  let resultadoId = resultadoRegexId1.concat(resultadoRegexId2);
+  if (resultadoId.length)
+    resultadoId = resultadoId.map((item) => {
+      let itemSemCerquilha = item.replace("#", "");
+      let itemSemEspaco = itemSemCerquilha.replace(" ", "");
+      let itemSemChave = itemSemEspaco.replace("{", "");
+      return itemSemChave;
+    });
+
+  resultadoId.forEach((e) => {
+    let quantosIds = texto.split(e).length - 2;
+    if (!quantosIds) {
+      if (tipo == "preenchimento") {
+        let resultado = document.querySelector("#resultadoPreenchimento");
+        resultado.innerHTML += ` - Id  ${e} não está em uso<br>`;
+      } else {
+        let resultado = document.querySelector("#resultadoVisualizacao");
+        resultado.innerHTML += ` - Id ${e} não está em uso<br>`;
+      }
+    }
+  });
+};
 
 /** exemplo de erro
 

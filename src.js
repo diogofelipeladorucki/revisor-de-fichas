@@ -50,6 +50,9 @@ submit = function () {
   classesEIds(textoPreenchimento, "preenchimento");
   classesEIds(textoVisualizacao, "visualizacao");
 
+  consoles(textoPreenchimento, "preenchimento");
+  consoles(textoVisualizacao, "visualizacao");
+
   tagsParaTeste.forEach((tag, i) => {
     let quantasVezesPreenchimentoArr = pesquisarNoTextoQuantasVezes(
       textoPreenchimento,
@@ -78,10 +81,10 @@ submit = function () {
   let v = document.querySelector("#resultadoVisualizacao");
   if (!p.innerHTML.length)
     p.innerHTML =
-      "<span class='text-success'>- Nenhuma anormalidade com o código</span>";
+    "<span class='text-success'>- Nenhuma anormalidade com o código</span>";
   if (!v.innerHTML.length)
     v.innerHTML =
-      "<span class='text-success'>- Nenhuma anormalidade com o código</span>";
+    "<span class='text-success'>- Nenhuma anormalidade com o código</span>";
 };
 
 copiar = () => {
@@ -132,8 +135,8 @@ copiarTextoPorClass = () => {
 
 classesEIds = (texto, tipo) => {
   //classes
-  let regexClasse1 = /\.(.*?[a-zA-Z\-0-9])\ {/g;
-  let regexClasse2 = /\.(.*?[a-zA-Z\-0-9])\{/g;
+  let regexClasse1 = /\.(.*?[a-zA-Z\-\_0-9])\ {/g;
+  let regexClasse2 = /\.(.*?[a-zA-Z\-\_0-9])\{/g;
   let resultadoRegexClasse1 = texto.match(regexClasse1) || [];
   let resultadoRegexClasse2 = texto.match(regexClasse2) || [];
 
@@ -151,17 +154,17 @@ classesEIds = (texto, tipo) => {
     if (!quantasClasses) {
       if (tipo == "preenchimento") {
         let resultado = document.querySelector("#resultadoPreenchimento");
-        resultado.innerHTML += ` - Classe ${e} não está em uso\n\n`;
+        resultado.innerHTML += ` - A classe ${e} não está em uso<br>`;
       } else {
         let resultado = document.querySelector("#resultadoVisualizacao");
-        resultado.innerHTML += ` - Classe ${e} não está em uso<br>`;
+        resultado.innerHTML += ` - A classe ${e} não está em uso<br>`;
       }
     }
   });
 
   // ids
-  let regexId1 = /\#(.*?[a-zA-Z\-0-9])\ {/g;
-  let regexId2 = /\#(.*?[a-zA-Z\-0-9])\{/g;
+  let regexId1 = /\#(.*?[a-zA-Z\-\_0-9])\ {/g;
+  let regexId2 = /\#(.*?[a-zA-Z\-\_0-9])\{/g;
   let resultadoRegexId1 = texto.match(regexId1) || [];
   let resultadoRegexId2 = texto.match(regexId2) || [];
 
@@ -179,18 +182,49 @@ classesEIds = (texto, tipo) => {
     if (!quantosIds) {
       if (tipo == "preenchimento") {
         let resultado = document.querySelector("#resultadoPreenchimento");
-        resultado.innerHTML += ` - Id  ${e} não está em uso<br>`;
+        resultado.innerHTML += ` - O id  ${e} não está em uso<br>`;
       } else {
         let resultado = document.querySelector("#resultadoVisualizacao");
-        resultado.innerHTML += ` - Id ${e} não está em uso<br>`;
+        resultado.innerHTML += ` - O id ${e} não está em uso<br>`;
       }
     }
   });
 };
 
+consoles = (texto, tipo) => {
+  let arrConsole = texto.split("console.log");
+
+  if (arrConsole.length - 1) {
+    if (tipo == "preenchimento") {
+      let resultado = document.querySelector("#resultadoPreenchimento");
+      if (arrConsole.length - 1 > 1)
+        resultado.innerHTML += ` - Retirar os console.log<br>`;
+      else
+        resultado.innerHTML += ` - Retirar o console.log<br>`;
+    } else {
+      let resultado = document.querySelector("#resultadoVisualizacao");
+      if (arrConsole.length - 1 > 1)
+        resultado.innerHTML += ` - Retirar os console.log<br>`;
+      else
+        resultado.innerHTML += ` - Retirar o console.log<br>`;
+    }
+  }
+};
+
 /** exemplo de erro
 
+  <style>
+    .classeDeExemplo {
+      color: red;
+    }
+    #idDeExemplo {
+      color: red;
+    }
+  </style>
  <p>sadsd</p> 
  <p>sadsd</a> 
- 
- */
+ <script>
+    console.log("teste");
+ </script>
+
+ **/

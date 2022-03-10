@@ -88,7 +88,11 @@ submit = function () {
 };
 
 copiar = () => {
-  copiarTextoPorClass();
+  let texto = "Preenchimento: \n";
+  texto += document.querySelector("#resultadoPreenchimento").innerText + "\n";
+  texto += "Visualização: \n";
+  texto += document.querySelector("#resultadoVisualizacao").innerText;
+  navigator.clipboard.writeText(texto);
 };
 
 //-- funções
@@ -125,13 +129,6 @@ limparResultado = () => {
   visualizacao.innerText = "";
 };
 
-copiarTextoPorClass = () => {
-  let texto = "Preenchimento: \n";
-  texto += document.querySelector("#resultadoPreenchimento").innerText + "\n";
-  texto += "Visualização: \n";
-  texto += document.querySelector("#resultadoVisualizacao").innerText;
-  navigator.clipboard.writeText(texto);
-};
 
 classesEIds = (texto, tipo) => {
   //classes

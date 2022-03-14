@@ -45,6 +45,9 @@ submit = function () {
     .querySelector("#visualizacao")
     .value.toLocaleLowerCase();
 
+  let textoResultadoPreenchimento = "";
+  let textoResultadoVisualizacao = "";
+
   limparResultado();
 
   classesEIds(textoPreenchimento, "preenchimento");
@@ -53,38 +56,81 @@ submit = function () {
   consoles(textoPreenchimento, "preenchimento");
   consoles(textoVisualizacao, "visualizacao");
 
+  tagsBrs(textoPreenchimento, "preenchimento");
+  tagsBrs(textoVisualizacao, "visualizacao");
+
   tagsParaTeste.forEach((tag, i) => {
     let quantasVezesPreenchimentoArr = pesquisarNoTextoQuantasVezes(
       textoPreenchimento,
       tag
     );
-    let textoResultadoPreenchimento = textoResultado(
-      quantasVezesPreenchimentoArr,
-      tag
-    );
+
+    if (tag == "b") {
+      let qtdTagBr = getQtdTagBr(textoPreenchimento);
+      let tagBFechamentoQtd = textoPreenchimento.split(`</b>`).length - 1;
+
+      if (qtdTagBr != quantasVezesPreenchimentoArr[0]) {
+        textoResultadoPreenchimento = textoResultado(
+          [quantasVezesPreenchimentoArr[0] - qtdTagBr, tagBFechamentoQtd],
+          tag
+        );
+      } else {
+        textoResultadoPreenchimento = tagBFechamentoQtd
+          ? `- Existem ${tagBFechamentoQtd} tags ${tag} de fechamento a mais<br>`
+          : "";
+      }
+    } else {
+      textoResultadoPreenchimento = textoResultado(
+        quantasVezesPreenchimentoArr,
+        tag
+      );
+    }
+
     if (textoResultadoPreenchimento)
       escreverResultado(textoResultadoPreenchimento, "preenchimento");
+
+    textoResultadoPreenchimento = "";
 
     let quantasVezesVisualizacaoArr = pesquisarNoTextoQuantasVezes(
       textoVisualizacao,
       tag
     );
-    let textoResultadoVisualizacao = textoResultado(
-      quantasVezesVisualizacaoArr,
-      tag
-    );
+
+    if (tag == "b") {
+      let qtdTagBr = getQtdTagBr(textoVisualizacao);
+      let tagBFechamentoQtd = textoVisualizacao.split(`</b>`).length - 1;
+
+      if (qtdTagBr != quantasVezesVisualizacaoArr[0]) {
+        textoResultadoVisualizacao = textoResultado(
+          [quantasVezesVisualizacaoArr[0] - qtdTagBr, tagBFechamentoQtd],
+          tag
+        );
+      } else {
+        textoResultadoVisualizacao = tagBFechamentoQtd
+          ? `- Existem ${tagBFechamentoQtd} tags ${tag} de fechamento a mais<br>`
+          : "";
+      }
+    } else {
+      textoResultadoVisualizacao = textoResultado(
+        quantasVezesVisualizacaoArr,
+        tag
+      );
+    }
+
     if (textoResultadoVisualizacao)
       escreverResultado(textoResultadoVisualizacao, "visualizacao");
   });
+
+  textoResultadoVisualizacao = "";
 
   let p = document.querySelector("#resultadoPreenchimento");
   let v = document.querySelector("#resultadoVisualizacao");
   if (!p.innerHTML.length)
     p.innerHTML =
-    "<span class='text-success'>- Nenhuma anormalidade com o código</span>";
+      "<span class='text-success'>- Nenhuma anormalidade com o código</span>";
   if (!v.innerHTML.length)
     v.innerHTML =
-    "<span class='text-success'>- Nenhuma anormalidade com o código</span>";
+      "<span class='text-success'>- Nenhuma anormalidade com o código</span>";
 };
 
 copiar = () => {
@@ -101,6 +147,11 @@ pesquisarNoTextoQuantasVezes = (texto, tag) => {
   let qtsTagFechamento = texto.split(`</${tag}`).length - 1;
 
   return [qtsTagAbertura, qtsTagFechamento];
+};
+
+getQtdTagBr = (texto) => {
+  let qtsTagBr = texto.split(`<br`).length - 1;
+  return qtsTagBr;
 };
 
 textoResultado = (qtd, tag) => {
@@ -129,24 +180,20 @@ limparResultado = () => {
   visualizacao.innerText = "";
 };
 
-
 classesEIds = (texto, tipo) => {
   //classes
-  let regexClasse1 = /\.(.*?[a-zA-Z\-\_0-9])\ {/g;
-  let regexClasse2 = /\.(.*?[a-zA-Z\-\_0-9])\{/g;
-  let resultadoRegexClasse1 = texto.match(regexClasse1) || [];
-  let resultadoRegexClasse2 = texto.match(regexClasse2) || [];
+  let regexClasse = /\.(.*?[a-zA-Z0-9-_ ])\{/g;
+  let resultadoRegexClasse = texto.match(regexClasse) || [];
 
-  let resultadoClasse = resultadoRegexClasse1.concat(resultadoRegexClasse2);
-  if (resultadoClasse.length)
-    resultadoClasse = resultadoClasse.map((item) => {
+  if (resultadoRegexClasse.length)
+    resultadoRegexClasse = resultadoRegexClasse.map((item) => {
       let itemSemPonto = item.replace(".", "");
       let itemSemEspaco = itemSemPonto.replace(" ", "");
       let itemSemChave = itemSemEspaco.replace("{", "");
       return itemSemChave;
     });
 
-  resultadoClasse.forEach((e) => {
+  resultadoRegexClasse.forEach((e) => {
     let quantasClasses = texto.split(e).length - 2;
     if (!quantasClasses) {
       if (tipo == "preenchimento") {
@@ -159,22 +206,19 @@ classesEIds = (texto, tipo) => {
     }
   });
 
-  // ids
-  let regexId1 = /\#(.*?[a-zA-Z\-\_0-9])\ {/g;
-  let regexId2 = /\#(.*?[a-zA-Z\-\_0-9])\{/g;
-  let resultadoRegexId1 = texto.match(regexId1) || [];
-  let resultadoRegexId2 = texto.match(regexId2) || [];
+  //ids
+  let regexId = /\#(.*?[a-zA-Z0-9-_ ])\{/g;
+  let resultadoRegexId = texto.match(regexId) || [];
 
-  let resultadoId = resultadoRegexId1.concat(resultadoRegexId2);
-  if (resultadoId.length)
-    resultadoId = resultadoId.map((item) => {
+  if (resultadoRegexId.length)
+    resultadoRegexId = resultadoRegexId.map((item) => {
       let itemSemCerquilha = item.replace("#", "");
       let itemSemEspaco = itemSemCerquilha.replace(" ", "");
       let itemSemChave = itemSemEspaco.replace("{", "");
       return itemSemChave;
     });
 
-  resultadoId.forEach((e) => {
+  resultadoRegexId.forEach((e) => {
     let quantosIds = texto.split(e).length - 2;
     if (!quantosIds) {
       if (tipo == "preenchimento") {
@@ -196,16 +240,25 @@ consoles = (texto, tipo) => {
       let resultado = document.querySelector("#resultadoPreenchimento");
       if (arrConsole.length - 1 > 1)
         resultado.innerHTML += ` - Retirar os console.log<br>`;
-      else
-        resultado.innerHTML += ` - Retirar o console.log<br>`;
+      else resultado.innerHTML += ` - Retirar o console.log<br>`;
     } else {
       let resultado = document.querySelector("#resultadoVisualizacao");
       if (arrConsole.length - 1 > 1)
         resultado.innerHTML += ` - Retirar os console.log<br>`;
-      else
-        resultado.innerHTML += ` - Retirar o console.log<br>`;
+      else resultado.innerHTML += ` - Retirar o console.log<br>`;
     }
   }
+};
+
+//esta função verificará as tags brs
+tagsBrs = (texto, tipo) => {
+  // let regexBrBarra = /<br(.*?[a-zA-Z0-9-_ ])\/>/g;
+  // let regexBr = /<br(.*?[a-zA-Z0-9-_ ])>/g;
+  // let resultadoTagBrBarra = texto.match(regexBrBarra) || [];
+  // let resultadoTagBr = texto.match(regexBr) || [];
+  // console.log(resultadoTagBrBarra, resultadoTagBr);
+  // console.log("teste", resultadoTagBr);
+  // return resultadoTagBr;
 };
 
 /** exemplo de erro
@@ -219,7 +272,10 @@ consoles = (texto, tipo) => {
     }
   </style>
  <p>sadsd</p> 
- <p>sadsd</a> 
+ <p>sadsd</a>
+ <br/>
+ <br>
+ <br></br><b></b></b><b><b>
  <script>
     console.log("teste");
  </script>

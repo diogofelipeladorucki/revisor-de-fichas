@@ -49,6 +49,7 @@ submit = function () {
   let textoResultadoVisualizacao = "";
 
   limparResultado();
+  limparSelos();
 
   classesEIds(textoPreenchimento, "preenchimento");
   classesEIds(textoVisualizacao, "visualizacao");
@@ -56,8 +57,10 @@ submit = function () {
   consoles(textoPreenchimento, "preenchimento");
   consoles(textoVisualizacao, "visualizacao");
 
-  tagsBrs(textoPreenchimento, "preenchimento");
-  tagsBrs(textoVisualizacao, "visualizacao");
+  // tagsBrs(textoPreenchimento, "preenchimento");
+  // tagsBrs(textoVisualizacao, "visualizacao");
+
+  script(textoVisualizacao);
 
   tagsParaTeste.forEach((tag, i) => {
     let quantasVezesPreenchimentoArr = pesquisarNoTextoQuantasVezes(
@@ -125,12 +128,27 @@ submit = function () {
 
   let p = document.querySelector("#resultadoPreenchimento");
   let v = document.querySelector("#resultadoVisualizacao");
-  if (!p.innerHTML.length)
+  let aprovacao = 0;
+  if (!p.innerHTML.length){
+    aprovacao++;
     p.innerHTML =
       "<span class='text-success'>- Nenhuma anormalidade com o código</span>";
-  if (!v.innerHTML.length)
+  }
+
+  if (!v.innerHTML.length){
+    aprovacao++;
     v.innerHTML =
       "<span class='text-success'>- Nenhuma anormalidade com o código</span>";
+  }
+
+  if(aprovacao === 2)
+    document.querySelector("#selo-de-aprovacao").style.display = "block";
+
+  if(aprovacao === 1)
+    document.querySelector("#selo-de-reprovacao-1").style.display = "block";
+  
+  if(aprovacao === 0)
+    document.querySelector("#selo-de-reprovacao-2").style.display = "block";
 };
 
 copiar = () => {
@@ -180,6 +198,12 @@ limparResultado = () => {
   visualizacao.innerText = "";
 };
 
+limparSelos = () => {
+  document.querySelector("#selo-de-aprovacao").style.display = "none";
+  document.querySelector("#selo-de-reprovacao-1").style.display = "none";
+  document.querySelector("#selo-de-reprovacao-2").style.display = "none";
+};
+
 classesEIds = (texto, tipo) => {
   //classes
   let regexClasse = /\.(.*?[a-zA-Z0-9-_ ])\{/g;
@@ -195,13 +219,16 @@ classesEIds = (texto, tipo) => {
 
   resultadoRegexClasse.forEach((e) => {
     let quantasClasses = texto.split(e).length - 2;
-    if (!quantasClasses) {
-      if (tipo == "preenchimento") {
-        let resultado = document.querySelector("#resultadoPreenchimento");
-        resultado.innerHTML += ` - A classe ${e} não está em uso<br>`;
-      } else {
-        let resultado = document.querySelector("#resultadoVisualizacao");
-        resultado.innerHTML += ` - A classe ${e} não está em uso<br>`;
+
+    if(e.split(",").length === 1 && e.split(" ").length === 1 && e.split("function").length === 1) {
+      if (!quantasClasses) {
+        if (tipo == "preenchimento") {
+          let resultado = document.querySelector("#resultadoPreenchimento");
+          resultado.innerHTML += ` - A classe ${e} não está em uso<br>`;
+        } else {
+          let resultado = document.querySelector("#resultadoVisualizacao");
+          resultado.innerHTML += ` - A classe ${e} não está em uso<br>`;
+        }
       }
     }
   });
@@ -220,13 +247,16 @@ classesEIds = (texto, tipo) => {
 
   resultadoRegexId.forEach((e) => {
     let quantosIds = texto.split(e).length - 2;
-    if (!quantosIds) {
-      if (tipo == "preenchimento") {
-        let resultado = document.querySelector("#resultadoPreenchimento");
-        resultado.innerHTML += ` - O id  ${e} não está em uso<br>`;
-      } else {
-        let resultado = document.querySelector("#resultadoVisualizacao");
-        resultado.innerHTML += ` - O id ${e} não está em uso<br>`;
+
+    if(e.split(",").length === 1 && e.split(" ").length === 1 && e.split("function").length === 1) {
+      if (!quantosIds) {
+        if (tipo == "preenchimento") {
+          let resultado = document.querySelector("#resultadoPreenchimento");
+          resultado.innerHTML += ` - O id  ${e} não está em uso<br>`;
+        } else {
+          let resultado = document.querySelector("#resultadoVisualizacao");
+          resultado.innerHTML += ` - O id ${e} não está em uso<br>`;
+        }
       }
     }
   });
@@ -247,6 +277,15 @@ consoles = (texto, tipo) => {
         resultado.innerHTML += ` - Retirar os console.log<br>`;
       else resultado.innerHTML += ` - Retirar o console.log<br>`;
     }
+  }
+};
+
+script = (texto, tipo) => {
+  let arrScript = texto.split("<script");
+
+  if (arrScript.length - 1) {
+      let resultado = document.querySelector("#resultadoVisualizacao");
+        resultado.innerHTML += ` - Caso esteja usando javascript, retire o script<br>`;
   }
 };
 
